@@ -3,22 +3,22 @@
   gather_facts: no
 
   tasks:
-    - name: create directory  # (1)
+    - name: create directory  # (a)
       file:
         state: directory
         path: "logs/{{ now(False, '%Y%m%d_%H%M_%S') }}"
       register: d
       run_once: yes
 
-    - name: gather facts  # (2)
+    - name: gather facts  # (b)
       ios_facts:
 
-    - name: execute show commands  # (3)
+    - name: execute show commands  # (c)
       ios_command:
         commands: "{{ commands }}"
       register: result
 
-    - name: output to files  # (4)
+    - name: output to files  # (d)
       copy:
         content: "{{ result.stdout[ansible_loop.index0] }} "
         dest: "{{ d.path }}/{{ inventory_hostname }}_{{ item | replace(' ', '_') }}.log"
@@ -26,7 +26,7 @@
       loop_control:
         extended: yes
         
-    - name: create report  # (5)
+    - name: create report  # (e)
       template:
         src: report.md.j2
         dest: "{{ d.path }}/report.md"
