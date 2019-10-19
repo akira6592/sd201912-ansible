@@ -1,0 +1,33 @@
+---
+- hosts: ios
+  gather_facts: no
+
+  tasks:
+    - name: create directory  # (1)
+      file:
+        state: directory
+        path: "logs/{{ now(False, '%Y%m%d_%H%M_%S') }}"
+      register: d
+      run_once: yes
+
+    - name: gather facts  # (2)
+      ios_facts:
+
+    - name: execute show commands  # (3)
+      ios_command:
+        commands: "{{ commands }}"
+      register: result
+
+    - name: output to files  # (4)
+      copy:
+        content: "{{ result.stdout[ansible_loop.index0] }} "
+        dest: "{{ d.path }}/{{ inventory_hostname }}_{{ item | replace(' ', '_') }}.log"
+      loop: "{{ commands }}"
+      loop_control:
+        extended: yes
+        
+    - name: create report  # (5)
+      template:
+        src: report.md.j2
+        dest: "{{ d.path }}/report.md"
+      run_once: yes

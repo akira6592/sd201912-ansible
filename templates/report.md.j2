@@ -1,0 +1,6 @@
+| hostname | model | os version | serialnum | 
+|---|---|---|---|---|
+{% for i in ansible_play_hosts %}
+{% set f = hostvars[i].ansible_facts %}
+|{{ f.net_hostname }}|{{ f.net_model }}|{{ f.net_version }}|{{ f.net_serialnum }}|
+{% endfor %}
